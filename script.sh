@@ -13,4 +13,4 @@ while IFS=";" read -r name surname mail passwd; do
 	password=$(echo "$passwd" | sed -e 's/\r//g')
 
 	echo -e "$login - $password"
-done < <(tail -n +2 account.csv)
+done < <(tail -n +2 accounts.csv)
