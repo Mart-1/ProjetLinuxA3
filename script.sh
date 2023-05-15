@@ -17,7 +17,29 @@ while IFS=';' read -r name surname mail passwd; do
     login=${name:0:1}$surname
 
     password=$(echo "$passwd" | sed -e 's/\r//g')
-
     echo -e "$login - $password"
+	
+	#Création des fichier dans le home et de leurs fichiers a_sauver
+	rm -R /home/$login
+	
+	mkdir /home/$login	
+	mkdir /home/$login/a_sauver
+
+	#Adduser (apres suppression des anciens)
+	echo "----------------------Suppression des anciennes instances----------------------"
+	deluser --remove-home $login
+	useradd -m -p $(openssl passwd -1 $password) $login
+	chage -d 0 "$login"
+	
+	
+	
+	
+	
+	#Création des fichier dans le shared 
+	rmdir /home/shared/$login
+	mkdir /home/shared/$login
+	sudo chown $login /home/shared/$login
+	
+	
 done < <(tail -n +2 accounts.csv)
 
