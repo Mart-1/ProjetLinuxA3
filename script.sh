@@ -4,7 +4,9 @@ if [ ! -d /home/shared ]; then
     mkdir -p /home/shared
 	echo "Fichier Shared crée"
 fi
+
 chmod 755 /home/shared
+chown root /home/shared
 
 while IFS=';' read -r name surname mail passwd; do
     # Suppression des espaces dans les champs
@@ -18,28 +20,27 @@ while IFS=';' read -r name surname mail passwd; do
 
     password=$(echo "$passwd" | sed -e 's/\r//g')
     echo -e "$login - $password"
-	
-	#Création des fichier dans le home et de leurs fichiers a_sauver
-	rm -R /home/$login
-	
-	mkdir /home/$login	
-	mkdir /home/$login/a_sauver
 
 	#Adduser (apres suppression des anciens)
 	echo "----------------------Suppression des anciennes instances----------------------"
 	deluser --remove-home $login
 	useradd -m -p $(openssl passwd -1 $password) $login
 	chage -d 0 "$login"
-	
-	
-	
-	
-	
-	#Création des fichier dans le shared 
+
+	#Création des fichier dans le home et de leurs fichiers a_sauver
+	rm -R /home/$login
+	mkdir -p /home/$login/a_sauver
+	#Applique droits et propriété a l'user
+	chown $login /home/$login
+	chown $login /home/$login/a_sauver
+	chmod 755 /home/$login	
+	chmod 755 /home/$login/a_sauver
+
+
+	#Création des fichier dans le shared
 	rmdir /home/shared/$login
 	mkdir /home/shared/$login
-	sudo chown $login /home/shared/$login
-	
-	
+	chown $login /home/shared/$login
+
 done < <(tail -n +2 accounts.csv)
 
