@@ -8,6 +8,20 @@ fi
 chmod 755 /home/shared
 chown root /home/shared
 
+echo "Entrez votre mail : "
+read mymail
+
+echo "Mot de passe :"
+read user_password
+
+echo "Port de connexion :"
+read port
+
+echo "Serveur SMTP : "
+read smtp
+
+echo "################################################################################"
+
 while IFS=';' read -r name surname mail passwd; do
     # Suppression des espaces dans les champs
     name=$(echo "$name" | sed 's/ //g')
@@ -19,7 +33,7 @@ while IFS=';' read -r name surname mail passwd; do
     login=${name:0:1}$surname
 
     password=$(echo "$passwd" | sed -e 's/\r//g')
-    echo -e "$login - $password"
+    #echo -e "$login - $password"
 
 	#Adduser (apres suppression des anciens)
 	echo "----------------------Suppression des anciennes instances----------------------"
@@ -41,6 +55,8 @@ while IFS=';' read -r name surname mail passwd; do
 	rmdir /home/shared/$login
 	mkdir /home/shared/$login
 	chown $login /home/shared/$login
+	
+	#ssh -n -i ~/.ssh/id_rsa mlobel25@10.30.48.100 "mail --subject \"Vos identifiants de session\" --exec \"set sendmail=smtp://${mymail/@/%40}:${user_password/@/%40}@$smtp:$port\" --append \"From:$mymail\" $mail <<< \"Votre compte à été créer avec succès ! Voici vos identifiants, Mail : $mail |         | Password : $password \""
 
 done < <(tail -n +2 accounts.csv)
 
