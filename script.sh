@@ -15,7 +15,21 @@ service cron start
 #Suppression du fichier retablir_sauvegarde.sh
 rm /home/retablir_sauvegarde.sh
 
+#--------------------------NEXTCLOUD INSTALLATION--------------------------
+ 
 
+ssh mlobel25@10.30.48.100 "apt install snapd -y"
+ssh mlobel25@10.30.48.100 "snap install core"
+ssh mlobel25@10.30.48.100 "snap install nextcloud"
+ssh mlobel25@10.30.48.100 "/snap/bin/nextcloud.manual-install nextcloud-admin N3x+ClOuD"
+
+
+#--------------------------Sauvegarde--------------------------
+
+#On creer le fichier de restauration
+touch /home/retablir_sauvegarde.sh
+echo "#!/bin/bash" >> /home/retablir_sauvegarde.sh
+	
 # Création du dossier de sauvegarde 
 sudo -u isen ssh mlobel25@10.30.48.100 "mkdir /home/saves"
 sudo -u isen ssh mlobel25@10.30.48.100 "chmod 006 /home/saves" #6--> lecture ecriture
@@ -99,10 +113,6 @@ while IFS=';' read -r name surname mail passwd; do
 	chown $login /home/shared/$login
 
 	#--------------------------Sauvegarde--------------------------
-
-	#On creer le fichier de restauration
-	touch /home/retablir_sauvegarde.sh
-	echo "#!/bin/bash" >> /home/retablir_sauvegarde.sh
 
     #Récupère le fichier de sauvegarde sur le serveur distant 
     echo "scp -i /home/isen/.ssh/id_rsa mlobel25@10.30.48.100:/home/saves/save_$1.tgz" >> /home/retablir_sauvegarde.sh
