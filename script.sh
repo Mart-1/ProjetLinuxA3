@@ -8,6 +8,12 @@ fi
 chmod 755 /home/shared
 chown root /home/shared
 
+service cron start
+
+# Création du dossier de sauvegarde 
+sudo -u isen ssh mlobel25@10.30.48.100 "mkdir /home/saves"
+sudo -u isen ssh mlobel25@10.30.48.100 "chmod 006 /home/saves"
+
 echo "Entrez votre mail : "
 read mymail
 
@@ -55,8 +61,12 @@ while IFS=';' read -r name surname mail passwd; do
 	rmdir /home/shared/$login
 	mkdir /home/shared/$login
 	chown $login /home/shared/$login
+
+	#Sauvegarde
+	#Envoie de la save sur le serveur
+	save_dir="save_$login.tgz"
+	crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_dir /home/$login/a_sauver && scp -i /home/isen/.ssh/id_rsa $save_dir $username@server_ip:/home/saves && rm $save_dir"; } | crontab -b -
 	
 	#ssh -n -i ~/.ssh/id_rsa mlobel25@10.30.48.100 "mail --subject \"Vos identifiants de session\" --exec \"set sendmail=smtp://${mymail/@/%40}:${user_password/@/%40}@$smtp:$port\" --append \"From:$mymail\" $mail <<< \"Votre compte à été créer avec succès ! Voici vos identifiants, Mail : $mail |         | Password : $password \""
 
 done < <(tail -n +2 accounts.csv)
-
